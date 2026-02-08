@@ -16,6 +16,9 @@
 import os
 import re
 from pprint import pformat
+import copy
+import hashlib
+from pathlib import Path
 
 import fire
 import tableprint as tp
@@ -34,7 +37,28 @@ from wespeaker.utils.executor import run_epoch
 from wespeaker.utils.file_utils import read_table
 from wespeaker.utils.utils import get_logger, parse_config_or_kwargs, set_seed, \
     spk2id
+from wespeaker.models.grl import GRL
 
+def _sha256_file(path: str) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+def _load_utt2lang(path: str) -> dict:
+    m = {}
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split()
+            if len(parts) < 2:
+                continue
+            utt, lang = parts[0], parts[1]
+            m[utt] = lang
+    return m
 
 def train(config='conf/config.yaml', **kwargs):
     """Trains a model on the given features and spk labels.
@@ -45,6 +69,18 @@ def train(config='conf/config.yaml', **kwargs):
     """
     configs = parse_config_or_kwargs(config, **kwargs)
     checkpoint = configs.get('checkpoint', None)
+
+    lang_adv = configs.get("lang_adv", {}) or {}
+    lang_enabled = bool(lang_adv.get("enabled", False))
+
+    if lang_enabled:
+        utt2lang_path = lang_adv.get("utt2lang_path", None)
+        if not utt2lang_path:
+            raise ValueError("lang_adv.enabled=true but lang_adv.utt2lang_path is missing")
+        utt2lang_path = str(Path(utt2lang_path))
+        if not Path(utt2lang_path).is_file():
+            raise FileNotFoundError(f"utt2lang not found: {utt2lang_path}")
+
     # dist configs
     local_rank = int(os.environ.get('LOCAL_RANK', 0))
     rank = int(os.environ.get('RANK', 0))
@@ -82,6 +118,37 @@ def train(config='conf/config.yaml', **kwargs):
     train_label = configs['train_label']
     train_utt_spk_list = read_table(train_label)
     spk2id_dict = spk2id(train_utt_spk_list)
+
+    lang2id = None
+    utt2lang_map = None
+
+    if lang_enabled:
+        utt2lang_str = _load_utt2lang(utt2lang_path)
+        train_utts = [row[0] for row in train_utt_spk_list]
+
+        missing = [u for u in train_utts if u not in utt2lang_str]
+        if missing:
+            preview = missing[:20]
+            raise ValueError(
+                f"utt2lang incomplete: missing {len(missing)}/{len(train_utts)} train utts. "
+                f"Examples: {preview}"
+            )
+
+        langs = sorted(set(utt2lang_str[u] for u in train_utts))
+        lang2id = {l: i for i, l in enumerate(langs)}
+        utt2lang_map = {u: lang2id[utt2lang_str[u]] for u in train_utts}
+
+        lang_adv_meta = dict(lang_adv)
+        lang_adv_meta["utt2lang_path"] = utt2lang_path
+        lang_adv_meta["utt2lang_sha256"] = _sha256_file(utt2lang_path)
+        lang_adv_meta["num_langs"] = len(lang2id)
+        lang_adv_meta["lang2id"] = lang2id
+        configs["lang_adv"] = lang_adv_meta
+
+        configs.setdefault("dataset_args", {})
+        configs["dataset_args"]["lang_adv"] = dict(configs["lang_adv"])
+        configs["dataset_args"]["utt2lang_map"] = utt2lang_map
+
     if rank == 0:
         logger.info("<== Data statistics ==>")
         logger.info("train data num: {}, spk num: {}".format(
@@ -143,6 +210,14 @@ def train(config='conf/config.yaml', **kwargs):
             configs['dataset_args']['speed_perturb'] = False
     projection = get_projection(configs['projection_args'])
     model.add_module("projection", projection)
+    if lang_enabled:
+        embed_dim = configs["model_args"]["embed_dim"]
+        num_langs = configs["lang_adv"]["num_langs"]
+
+        grl_lambda = float(configs["lang_adv"].get("grl_lambda", 1.0))
+        model.add_module("grl", GRL(lambda_=grl_lambda))
+        model.add_module("lang_head", torch.nn.Linear(embed_dim, num_langs))
+
     if rank == 0:
         # print model
         for line in pformat(model).split('\n'):
@@ -207,10 +282,12 @@ def train(config='conf/config.yaml', **kwargs):
 
     # save config.yaml
     if rank == 0:
-        saved_config_path = os.path.join(configs['exp_dir'], 'config.yaml')
-        with open(saved_config_path, 'w') as fout:
-            data = yaml.dump(configs)
-            fout.write(data)
+        saved_config_path = os.path.join(configs["exp_dir"], "config.yaml")
+        configs_to_save = copy.deepcopy(configs)
+        if "dataset_args" in configs_to_save:
+            configs_to_save["dataset_args"].pop("utt2lang_map", None)
+        with open(saved_config_path, "w") as fout:
+            fout.write(yaml.dump(configs_to_save))
 
     # training
     dist.barrier(device_ids=[gpu])  # synchronize here

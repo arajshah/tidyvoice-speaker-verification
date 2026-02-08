@@ -28,6 +28,31 @@ def run_epoch(dataloader, epoch_iter, model, criterion, optimizer, scheduler,
     acc_meter = tnt.meter.ClassErrorMeter(accuracy=True)
 
     frontend_type = configs['dataset_args'].get('frontend', 'fbank')
+    lang_adv_cfg = configs.get("lang_adv", {})
+    if isinstance(lang_adv_cfg, bool):
+        lang_adv_cfg = {"enabled": bool(lang_adv_cfg)}
+    lang_adv_enabled = bool(lang_adv_cfg.get("enabled", False))
+    lang_loss_weight = float(lang_adv_cfg.get("loss_weight", 0.0))
+
+    lang_ce = None
+    if lang_adv_enabled:
+        lang_ce = torch.nn.CrossEntropyLoss()
+
+    def _compute_grl_lambda(step: int, cfg: dict) -> float:
+        grl = cfg.get("grl", {})
+        if not isinstance(grl, dict):
+            grl = {}
+        schedule = str(grl.get("schedule", "constant")).lower()
+        max_lambda = float(grl.get("max_lambda", cfg.get("max_lambda", 1.0)))
+        if schedule == "constant":
+            return max_lambda
+        if schedule == "linear_warmup":
+            warmup_steps = int(grl.get("warmup_steps", 10000))
+            if warmup_steps <= 0:
+                return max_lambda
+            return max_lambda * min(1.0, step / float(warmup_steps))
+        return max_lambda
+
     for i, batch in enumerate(dataloader):
         cur_iter = (epoch - 1) * epoch_iter + i
         scheduler.step(cur_iter)
@@ -64,6 +89,24 @@ def run_epoch(dataloader, epoch_iter, model, criterion, optimizer, scheduler,
                 outputs, loss = outputs
             else:
                 loss = criterion(outputs, targets)
+            
+            if lang_adv_enabled:
+                if "lang" not in batch:
+                    raise KeyError("lang_adv.enabled=true but batch has no 'lang'. Did you enable lang injection in the dataset pipeline?")
+                if not hasattr(model.module, "grl") or not hasattr(model.module, "lang_head"):
+                    raise AttributeError("lang_adv.enabled=true but model is missing 'grl' and/or 'lang_head'. Did train.py attach them?")
+
+                lang_targets = batch["lang"].long().to(device)
+
+                grl_lambda = _compute_grl_lambda(cur_iter, lang_adv_cfg)
+                if hasattr(model.module.grl, "set_lambda"):
+                    model.module.grl.set_lambda(grl_lambda)
+
+                lang_logits = model.module.lang_head(model.module.grl(embeds))
+                loss_lang = lang_ce(lang_logits, lang_targets)
+
+                loss = loss + (lang_loss_weight * loss_lang)
+
 
         # loss, acc
         loss_meter.add(loss.item())

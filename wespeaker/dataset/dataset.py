@@ -190,6 +190,22 @@ def Dataset(data_type,
 
     # spk2id
     dataset = Processor(dataset, processor.spk_to_id, spk2id_dict)
+    
+    # lang adv
+    lang_adv = configs.get("lang_adv", {})
+    enabled = bool(lang_adv.get("enabled", False))
+    if enabled:
+        utt2lang_id = lang_adv.get("utt2lang_id", None)
+        required = bool(lang_adv.get("required", True))
+        if utt2lang_id is None:
+            raise ValueError("lang_adv.enabled=true but lang_adv.utt2lang_id is missing")
+        dataset = Processor(
+            dataset,
+            processor.utt_to_lang_id,
+            utt2lang_id=utt2lang_id,
+            required=required,
+        )
+
 
     if data_type == 'feat':
         if not whole_utt:

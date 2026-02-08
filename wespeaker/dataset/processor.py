@@ -238,6 +238,27 @@ def spk_to_id(data, spk2id):
         sample['label'] = label
         yield sample
 
+def utt_to_lang_id(data, utt2lang_id, required=True):
+    for sample in data:
+        key = sample.get("key", None)
+        if key is None:
+            raise KeyError("utt_to_lang_id: sample missing 'key'")
+
+        lang_id = utt2lang_id.get(key, None)
+        if lang_id is None:
+            if key.endswith(".wav"):
+                lang_id = utt2lang_id.get(key[:-4], None)
+            else:
+                lang_id = utt2lang_id.get(key + ".wav", None)
+
+        if lang_id is None:
+            if required:
+                raise KeyError(f"utt_to_lang_id: no lang mapping for key='{key}'")
+            else:
+                continue
+
+        sample["lang"] = int(lang_id)
+        yield sample
 
 def resample(data, resample_rate=16000):
     """ Resample data.
