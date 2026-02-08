@@ -1,0 +1,47 @@
+{
+  "check_wavs": false,
+  "created_at": "2026-02-07_14-08-16_EST",
+  "data_dir": "/Volumes/devdrive/machine-learning/wespeaker/examples/tidyvocie/data",
+  "files": {
+    "tidyvoice_dev/spk2utt": "/Volumes/devdrive/machine-learning/wespeaker/examples/tidyvocie/artifacts/data_lock/2026-02-07_14-08-16_EST/tidyvoice_dev/spk2utt",
+    "tidyvoice_dev/trials/trials.kaldi": "/Volumes/devdrive/machine-learning/wespeaker/examples/tidyvocie/artifacts/data_lock/2026-02-07_14-08-16_EST/tidyvoice_dev/trials/trials.kaldi",
+    "tidyvoice_dev/utt2lang": "/Volumes/devdrive/machine-learning/wespeaker/examples/tidyvocie/artifacts/data_lock/2026-02-07_14-08-16_EST/tidyvoice_dev/utt2lang",
+    "tidyvoice_dev/utt2spk": "/Volumes/devdrive/machine-learning/wespeaker/examples/tidyvocie/artifacts/data_lock/2026-02-07_14-08-16_EST/tidyvoice_dev/utt2spk",
+    "tidyvoice_dev/wav.scp": "/Volumes/devdrive/machine-learning/wespeaker/examples/tidyvocie/artifacts/data_lock/2026-02-07_14-08-16_EST/tidyvoice_dev/wav.scp",
+    "tidyvoice_train/spk2utt": "/Volumes/devdrive/machine-learning/wespeaker/examples/tidyvocie/artifacts/data_lock/2026-02-07_14-08-16_EST/tidyvoice_train/spk2utt",
+    "tidyvoice_train/utt2lang": "/Volumes/devdrive/machine-learning/wespeaker/examples/tidyvocie/artifacts/data_lock/2026-02-07_14-08-16_EST/tidyvoice_train/utt2lang",
+    "tidyvoice_train/utt2spk": "/Volumes/devdrive/machine-learning/wespeaker/examples/tidyvocie/artifacts/data_lock/2026-02-07_14-08-16_EST/tidyvoice_train/utt2spk",
+    "tidyvoice_train/wav.scp": "/Volumes/devdrive/machine-learning/wespeaker/examples/tidyvocie/artifacts/data_lock/2026-02-07_14-08-16_EST/tidyvoice_train/wav.scp"
+  },
+  "include_utt2lang": true,
+  "lock_dir": "/Volumes/devdrive/machine-learning/wespeaker/examples/tidyvocie/artifacts/data_lock/2026-02-07_14-08-16_EST",
+  "sha256": {
+    "tidyvoice_dev/spk2utt": "424774d6e30cb73bfbaa5c8fd40716953a3a6f3c5f69098c1a81da04150218f9",
+    "tidyvoice_dev/trials/trials.kaldi": "7f3138f5bc14aec92d9c53f827f6f48d3530db93524618824773d5be90836b64",
+    "tidyvoice_dev/utt2lang": "e0936ba1830816ae71d09194be450e3fbe7f3c7f6d09054a609a392e5e03d578",
+    "tidyvoice_dev/utt2spk": "8ee40deb9c7f2f7f2eea4ec2775b34698d47cbedcf94de48cd54b69e85af6469",
+    "tidyvoice_dev/wav.scp": "2beafbf62bfb74121de094cb096ca2aa690bb543eff5ef577700a0a2e043c25e",
+    "tidyvoice_train/spk2utt": "f249e475a9db0f7a69f33a590b047a6bd23a7e6a2e687b483044840c4e3ea344",
+    "tidyvoice_train/utt2lang": "e4ad06f54829be0cd3029c2a98f50ff31315b96db17a3c8da0395b9e05254fd8",
+    "tidyvoice_train/utt2spk": "25e61ebf6bdece0346ac1bdca87592d4fd6fc1d8d8e98c26d8f12538e1d9dad7",
+    "tidyvoice_train/wav.scp": "f5309bded99d2f8bdfe54efd1ef2f475413c1524648e68f060e920c65aedc243"
+  },
+  "splits": {
+    "tidyvoice_dev": {
+      "spk_count": 808,
+      "split": "tidyvoice_dev",
+      "utt_count": 59443
+    },
+    "tidyvoice_train": {
+      "spk_count": 3666,
+      "split": "tidyvoice_train",
+      "utt_count": 262268
+    }
+  },
+  "tidy_root": "/Volumes/devdrive/machine-learning/wespeaker/examples/tidyvocie",
+  "timezone": "America/New_York",
+  "trials": {
+    "trial_count": 12000000
+  },
+  "wav_check_limit": 0
+}

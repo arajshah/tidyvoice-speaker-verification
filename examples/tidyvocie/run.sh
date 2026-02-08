@@ -21,7 +21,7 @@ data_type="shard"  # shard/raw
 
 # CommonVoice DataCollective API Key
 # Get your API key from: https://datacollective.mozillafoundation.org/api-reference
-TIDYVOICE_API_KEY="Enter your Mozilla CommonVoice API key here"
+TIDYVOICE_API_KEY="8af02cc3468096da1a527a8760b932d1b9aa33e04c9175915d05ceeab7fd5d57"
 
 
 ######## Resnet34 Multi Lingual
