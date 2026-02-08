@@ -1,0 +1,20 @@
+{
+  "bucket_counts": {
+    "non_diff_lang": 200000,
+    "non_same_lang": 200000,
+    "tar_diff_lang": 200000,
+    "tar_same_lang": 200000
+  },
+  "coverage": {
+    "unique_langs": 31,
+    "unique_speakers": 733
+  },
+  "created_et": "20260207_163253_ET",
+  "num_per_bucket": 200000,
+  "output_dir": "/Volumes/devdrive/machine-learning/wespeaker/examples/tidyvocie/artifacts/splits/split_20260207_142748_ET_seed43_tune0.20/tune_s/20260207_163253_ET",
+  "seed": 43,
+  "shuffle": false,
+  "total_trials": 800000,
+  "tune_dir": "/Volumes/devdrive/machine-learning/wespeaker/examples/tidyvocie/artifacts/splits/split_20260207_142748_ET_seed43_tune0.20/tune_s",
+  "unique_utts_in_tune": 52678
+}
