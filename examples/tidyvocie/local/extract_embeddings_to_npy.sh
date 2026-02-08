@@ -23,7 +23,7 @@ config_file="${exp_dir}/config.yaml"
 gpu_id=$(echo $gpus | tr -d '[]' | cut -d',' -f1)
 
 # Python path
-python_bin=/local/scratch/arfarh/wespeaker/we-env/bin/python3
+python_bin=python3
 
 # Determine which mode to use
 if [ -n "${wav_dir}" ]; then

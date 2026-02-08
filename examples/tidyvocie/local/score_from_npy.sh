@@ -20,7 +20,7 @@ stop_stage=-1
 . path.sh
 
 # Python path
-python_bin=/local/scratch/arfarh/wespeaker/we-env/bin/python3
+python_bin=python3
 
 echo "Using evaluation dataset: $eval_dataset"
 echo "Using trials: $trials"
