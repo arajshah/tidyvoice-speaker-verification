@@ -23,6 +23,6 @@ soundfile
 pypeln
 silero-vad
 pre-commit
-s3prl
+s3prl @ git+https://github.com/s3prl/s3prl.git
 hdbscan
 umap-learn
