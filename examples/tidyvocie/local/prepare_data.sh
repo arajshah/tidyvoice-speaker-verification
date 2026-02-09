@@ -213,10 +213,10 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
   fi
   
   # Prepare dev/validation set (search recursively for directories containing "Dev")
-  dev_dir=$(find ${tidyvoice_base} -type d -iname "*dev*" 2>/dev/null | grep -i "dev" | head -n 1)
+  dev_dir=$(find -L ${tidyvoice_base} -type d -iname "*dev*" 2>/dev/null | grep -i "dev" | head -n 1)
   if [ -n "${dev_dir}" ]; then
     echo "Processing development set from ${dev_dir}..."
-    find ${dev_dir} -name "*.wav" | awk -F"/" '{print $(NF-2)"/"$(NF-1)"/"$NF,$0}' | sort >${data}/tidyvoice_dev/wav.scp
+    find -L ${dev_dir} -type f -name "*.wav" | awk -F"/" '{print $(NF-2)"/"$(NF-1)"/"$NF,$0}' | sort >${data}/tidyvoice_dev/wav.scp
     awk '{print $1}' ${data}/tidyvoice_dev/wav.scp | awk -F "/" '{print $0,$1}' >${data}/tidyvoice_dev/utt2spk
     ./tools/utt2spk_to_spk2utt.pl ${data}/tidyvoice_dev/utt2spk >${data}/tidyvoice_dev/spk2utt
     echo "Development set prepared: $(wc -l < ${data}/tidyvoice_dev/wav.scp) utterances"
@@ -227,13 +227,13 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
   # Optional: prepare musan and rirs for data augmentation if they exist
   if [ -d ${rawdata_dir}/musan ]; then
     mkdir -p ${data}/musan
-    find ${rawdata_dir}/musan -name "*.wav" | awk -F"/" '{print $(NF-2)"/"$(NF-1)"/"$NF,$0}' >${data}/musan/wav.scp
+    find -L ${rawdata_dir}/musan -type f -name "*.wav" | awk -F"/" '{print $(NF-2)"/"$(NF-1)"/"$NF,$0}' >${data}/musan/wav.scp
     echo "MUSAN prepared: $(wc -l < ${data}/musan/wav.scp) files"
   fi
   
   if [ -d ${rawdata_dir}/RIRS_NOISES ]; then
     mkdir -p ${data}/rirs
-    find ${rawdata_dir}/RIRS_NOISES/simulated_rirs -name "*.wav" | awk -F"/" '{print $(NF-2)"/"$(NF-1)"/"$NF,$0}' >${data}/rirs/wav.scp
+    find -L ${rawdata_dir}/RIRS_NOISES/simulated_rirs -type f -name "*.wav" | awk -F"/" '{print $(NF-2)"/"$(NF-1)"/"$NF,$0}' >${data}/rirs/wav.scp
     echo "RIRS prepared: $(wc -l < ${data}/rirs/wav.scp) files"
   fi
 
