@@ -19,6 +19,13 @@ import torch
 import torchnet as tnt
 from wespeaker.dataset.dataset_utils import apply_cmvn, spec_aug
 
+try:
+    from tqdm.auto import tqdm
+except Exception:
+    def tqdm(x, **kwargs):
+        return x
+
+
 
 def run_epoch(dataloader, epoch_iter, model, criterion, optimizer, scheduler,
               margin_scheduler, epoch, logger, scaler, device, configs):
@@ -53,7 +60,7 @@ def run_epoch(dataloader, epoch_iter, model, criterion, optimizer, scheduler,
             return max_lambda * min(1.0, step / float(warmup_steps))
         return max_lambda
 
-    for i, batch in enumerate(dataloader):
+    for i, batch in enumerate(tqdm(dataloader, total=epoch_iter, desc=f"epoch {epoch}", leave=False)):
         cur_iter = (epoch - 1) * epoch_iter + i
         scheduler.step(cur_iter)
         margin_scheduler.step(cur_iter)
