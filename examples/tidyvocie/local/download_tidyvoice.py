@@ -99,17 +99,26 @@ def download_with_resume(sess: requests.Session, url: str, out_path: str, expect
 
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: python download_tidyvoice.py <output_directory> <api_key>")
+    if len(sys.argv) < 2:
+        print("Usage: python download_tidyvoice.py <output_directory> <api_key> [--skip_dataset]")
         sys.exit(1)
-    
+
     output_dir = sys.argv[1]
-    api_key = sys.argv[2]
-    
-    if not api_key or api_key.strip() == "":
-        print("ERROR: API key is required")
-        print("Please provide your DataCollective API key")
-        sys.exit(1)
+    skip_dataset = any(a in ("--skip_dataset", "--skip-dataset") for a in sys.argv[2:])
+
+    api_key = ""
+    if not skip_dataset:
+        if len(sys.argv) < 3:
+            print("ERROR: API key is required unless --skip_dataset is set")
+            sys.exit(1)
+        api_key = sys.argv[2]
+        if not api_key or api_key.strip() == "":
+            print("ERROR: API key is required unless --skip_dataset is set")
+            sys.exit(1)
+    else:
+        # api_key is optional when skipping dataset download
+        if len(sys.argv) >= 3 and not sys.argv[2].startswith("--"):
+            api_key = sys.argv[2]
     
     print("TidyVoice 2026 Challenge Auto-Downloader")
     print("==========================================")
@@ -120,34 +129,37 @@ def main():
     
     print(f"Saving to: {output_dir}")
     
-    # 1) Download TidyVoiceX dataset (robust: POST -> presigned URL -> stream download)
-    try:
-        sess = requests.Session()
-        r = sess.post(
-            f"https://datacollective.mozillafoundation.org/api/datasets/{DATASET_ID}/download",
-            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-            json={},
-            timeout=60,
-        )
-        r.raise_for_status()
-        info = r.json()
-        url = info["downloadUrl"]
-        filename = info.get("filename", "tidyvoicex-asv.tar.gz")
-        size_bytes = int(info.get("sizeBytes", "0") or 0)
+    if skip_dataset:
+        print("Skipping dataset download (--skip_dataset set).")
+    else:
+        # 1) Download TidyVoiceX dataset (robust: POST -> presigned URL -> stream download)
+        try:
+            sess = requests.Session()
+            r = sess.post(
+                f"https://datacollective.mozillafoundation.org/api/datasets/{DATASET_ID}/download",
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+                json={},
+                timeout=60,
+            )
+            r.raise_for_status()
+            info = r.json()
+            url = info["downloadUrl"]
+            filename = info.get("filename", "tidyvoicex-asv.tar.gz")
+            size_bytes = int(info.get("sizeBytes", "0") or 0)
 
-        out_path = os.path.join(output_dir, filename)
+            out_path = os.path.join(output_dir, filename)
 
-        print(f"Downloading dataset to: {out_path}")
-        download_with_resume(sess, url, out_path, expected_size=size_bytes)
+            print(f"Downloading dataset to: {out_path}")
+            download_with_resume(sess, url, out_path, expected_size=size_bytes)
 
 
-        print("\nTidyVoiceX dataset download completed successfully!")
-        print(f"Dataset tar saved in: {out_path}\n")
+            print("\nTidyVoiceX dataset download completed successfully!")
+            print(f"Dataset tar saved in: {out_path}\n")
 
-    except Exception as e:
-        print("\nERROR while downloading TidyVoiceX dataset:")
-        print(str(e))
-        sys.exit(1)
+        except Exception as e:
+            print("\nERROR while downloading TidyVoiceX dataset:")
+            print(str(e))
+            sys.exit(1)
 
 
     # 2) (Optional) Download pretrained baseline model from Hugging Face
