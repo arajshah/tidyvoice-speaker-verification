@@ -153,7 +153,7 @@ def main():
     # 2) (Optional) Download pretrained baseline model from Hugging Face
     print("Downloading pretrained baseline model from Hugging Face (optional step)...")
     exp_model_dir = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "exp",
         "samresnet34_voxblink_ft_tidy",
     )
