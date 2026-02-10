@@ -147,7 +147,7 @@ def train(config='conf/config.yaml', **kwargs):
 
         configs.setdefault("dataset_args", {})
         configs["dataset_args"]["lang_adv"] = dict(configs["lang_adv"])
-        configs["dataset_args"]["utt2lang_map"] = utt2lang_map
+        configs["dataset_args"]["lang_adv"]["utt2lang_id"] = utt2lang_map 
 
     if rank == 0:
         logger.info("<== Data statistics ==>")
