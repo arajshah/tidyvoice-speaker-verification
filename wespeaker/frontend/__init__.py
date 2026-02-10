@@ -13,7 +13,11 @@
 # limitations under the License.
 
 
-from .s3prl import S3prlFrontend
+
+try:
+    from .s3prl import S3prlFrontend
+except Exception:
+    S3prlFrontend = None
 from .whisper_encoder import whisper_encoder
 
 frontend_class_dict = {
