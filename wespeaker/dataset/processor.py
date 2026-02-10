@@ -520,7 +520,10 @@ def compute_fbank(data,
                           sample_frequency=sample_rate,
                           window_type='hamming',
                           use_energy=False)
-        yield dict(key=sample['key'], label=sample['label'], feat=mat)
+        out = dict(key=sample['key'], label=sample['label'], feat=mat)
+        if 'lang' in sample:
+            out['lang'] = sample['lang']
+        yield out
 
 
 def apply_cmvn(data, norm_mean=True, norm_var=False):
