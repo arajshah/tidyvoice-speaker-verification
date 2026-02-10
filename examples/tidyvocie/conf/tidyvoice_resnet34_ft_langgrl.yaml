@@ -1,6 +1,6 @@
 exp_dir: exp/samresnet34_voxblink_ft_tidy_langgrl
 
-gpus: [1]
+gpus: [0]
 num_avg: 1
 enable_amp: false
 
@@ -59,7 +59,7 @@ lang_adv:
     hold_steps: 0
 
 model: SimAM_ResNet34_ASP
-model_init: voxblink2/voxblink2_samresnet34_ft/avg_model.pt
+model_init: exp/samresnet34_voxblink_ft_tidy/models/avg_model.pt
 model_args:
   embed_dim: 256
 
