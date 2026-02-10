@@ -27,9 +27,18 @@ class LmdbData:
                             readahead=False)
         with self.db.begin(write=False) as txn:
             obj = txn.get(b'__keys__')
-            assert obj is not None
-            self.keys = pickle.loads(obj)
-            assert isinstance(self.keys, list)
+            if obj is not None:
+                self.keys = pickle.loads(obj)
+            else:
+                # fallback: build keys list from the DB (skip internal/meta keys)
+                self.keys = []
+                with txn.cursor() as cur:
+                    for k, _ in cur:
+                        if k == b'__keys__':
+                            continue
+                        self.keys.append(k)
+
+        assert isinstance(self.keys, list)
 
     def random_one(self):
         assert len(self.keys) > 0
