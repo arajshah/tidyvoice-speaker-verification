@@ -4,6 +4,9 @@ gpus: [0]
 num_avg: 1
 enable_amp: false
 
+noise_data: data/musan/lmdb
+# reverb_data: data/rirs/lmdb
+
 do_lm: true
 seed: 42
 num_epochs: 6
