@@ -4,7 +4,7 @@ gpus: [0]
 num_avg: 1
 enable_amp: false
 
-noise_data: data/musan/lmdb
+# noise_data: data/musan/lmdb
 # reverb_data: data/rirs/lmdb
 
 do_lm: true
@@ -34,7 +34,7 @@ dataset_args:
   resample_rate: 16000
   speed_perturb: false
   num_frms: 600
-  aug_prob: 0.3
+  aug_prob: 0.0
   fbank_args:
     num_mel_bins: 80
     frame_shift: 10
