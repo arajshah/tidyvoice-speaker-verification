@@ -18,7 +18,11 @@ try:
     from .s3prl import S3prlFrontend
 except Exception:
     S3prlFrontend = None
-from .whisper_encoder import whisper_encoder
+try:
+    from .whisper_encoder import whisper_encoder
+except Exception:
+    whisper_encoder = None
+    
 
 frontend_class_dict = {
     'fbank': None,
