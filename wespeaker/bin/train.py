@@ -215,7 +215,7 @@ def train(config='conf/config.yaml', **kwargs):
         num_langs = configs["lang_adv"]["num_langs"]
 
         grl_lambda = float(configs["lang_adv"].get("grl_lambda", 1.0))
-        model.add_module("grl", GRL(lambda_=grl_lambda))
+        model.add_module("grl", GRL(lambd=grl_lambda))
         model.add_module("lang_head", torch.nn.Linear(embed_dim, num_langs))
 
     if rank == 0:
