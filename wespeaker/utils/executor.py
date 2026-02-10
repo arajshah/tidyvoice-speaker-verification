@@ -16,7 +16,35 @@
 import tableprint as tp
 
 import torch
-import torchnet as tnt
+
+try:
+    import torchnet as tnt
+except Exception:
+    tnt = None
+
+    class _AvgMeter:
+        def __init__(self):
+            self.s = 0.0
+            self.n = 0
+        def add(self, v):
+            self.s += float(v)
+            self.n += 1
+        def value(self):
+            return (self.s / self.n if self.n else 0.0,)
+
+    class _AccMeter:
+        def __init__(self):
+            self.correct = 0
+            self.total = 0
+        def add(self, outputs, targets):
+            # outputs, targets are numpy arrays
+            import numpy as np
+            preds = np.argmax(outputs, axis=1)
+            self.correct += int((preds == targets).sum())
+            self.total += int(len(targets))
+        def value(self):
+            return (100.0 * self.correct / self.total if self.total else 0.0,)
+
 from wespeaker.dataset.dataset_utils import apply_cmvn, spec_aug
 
 try:
@@ -31,8 +59,8 @@ def run_epoch(dataloader, epoch_iter, model, criterion, optimizer, scheduler,
               margin_scheduler, epoch, logger, scaler, device, configs):
     model.train()
     # By default use average pooling
-    loss_meter = tnt.meter.AverageValueMeter()
-    acc_meter = tnt.meter.ClassErrorMeter(accuracy=True)
+    loss_meter = tnt.meter.AverageValueMeter() if tnt is not None else _AvgMeter()
+    acc_meter  = tnt.meter.ClassErrorMeter(accuracy=True) if tnt is not None else _AccMeter()
 
     frontend_type = configs['dataset_args'].get('frontend', 'fbank')
     lang_adv_cfg = configs.get("lang_adv", {})
