@@ -47,7 +47,7 @@ dataset_args:
 
 lang_adv:
   enabled: true
-  utt2lang_path: artifacts/splits/split_20260207_142748_ET_seed43_tune0.20/train_s/utt2lang
+  utt2lang_path: data/train_s/utt2lang
   missing_policy: error
   lang_loss_weight: 0.2
   grl:
