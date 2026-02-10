@@ -233,12 +233,12 @@ def Dataset(data_type,
                                 data_type)
         # add reverb & noise
         aug_prob = configs.get('aug_prob', 0.6)
-        if (reverb_lmdb_file and noise_lmdb_file) and (aug_prob > 0.0):
-            reverb_data = LmdbData(reverb_lmdb_file)
-            noise_data = LmdbData(noise_lmdb_file)
+        reverb_data = LmdbData(reverb_lmdb_file) if reverb_lmdb_file else None
+        noise_data  = LmdbData(noise_lmdb_file)  if noise_lmdb_file  else None
+        if (reverb_data or noise_data) and (aug_prob > 0.0):
             dataset = Processor(dataset, processor.add_reverb_noise,
-                                reverb_data, noise_data, resample_rate,
-                                aug_prob)
+                                reverb_data, noise_data, resample_rate, aug_prob)
+
         # compute fbank
         if frontend_type == 'fbank':
             dataset = Processor(dataset, processor.compute_fbank,
