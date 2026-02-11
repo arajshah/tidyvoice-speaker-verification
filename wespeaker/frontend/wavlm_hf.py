@@ -24,6 +24,8 @@ class WavLMHFFrontend(nn.Module):
         output_layer: int = -1,          # -1 = last hidden state
         freeze: bool = False,            # freeze all wavlm params if True
         use_attention_mask: bool = True, # mask padding using wav_lens
+        sample_rate: int = 16000,   
+        **kwargs,  
     ):
         super().__init__()
         if WavLMModel is None:
