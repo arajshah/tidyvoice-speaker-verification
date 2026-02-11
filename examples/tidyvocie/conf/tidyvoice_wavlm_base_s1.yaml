@@ -15,8 +15,8 @@ num_avg: 1
 enable_amp: false
 
 # Keep these OFF initially to avoid LMDB resize/drive issues.
-# noise_data: data/musan/lmdb
-# reverb_data: data/rirs/lmdb
+noise_data: data/musan/lmdb
+reverb_data: data/rirs/lmdb
 
 do_lm: true
 seed: 42
@@ -47,15 +47,15 @@ dataset_args:
   num_frms: 600
 
   # Disable waveform augment for now; revisit after S1 runs end-to-end.
-  aug_prob: 0.0
+  aug_prob: 0.3
 
   # Switch from fbank to SSL frontend
-  frontend: s3prl
-  s3prl_args:
-    # S3PRL/huggingface style selector used by many WeSpeaker forks.
-    # If your repo uses a different key, adjust to match its frontend wrapper.
-    upstream: huggingface
+  frontend: wavlm_hf
+  wavlm_hf_args:
     model_name: microsoft/wavlm-base
+    output_layer: -1
+    freeze: true
+    use_attention_mask: true
 
     # Common wrapper toggles (safe defaults; ignored if your wrapper doesn't use them)
     frozen: true          # start with frozen SSL; later you can set false to fine-tune
