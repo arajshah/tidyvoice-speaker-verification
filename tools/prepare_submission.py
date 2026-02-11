@@ -72,7 +72,7 @@ TV26_EVAL_A_REF_FILE = EVAL_TRIALS_DIR / "tv26_eval-A.txt"
 TV26_EVAL_U_REF_FILE = EVAL_TRIALS_DIR / "tv26_eval-U.txt"
 
 # Your computed score files (you will generate these in the scoring step)
-SCORES_DIR = ROOT / "exp" / "samresnet34_voxblink_ft_tidy_langgrl" / "scores"
+SCORES_DIR = ROOT / "exp" / "samresnet34_voxblink_ft_tidy_langgrl" / "scores_custom"
 TV26_EVAL_A_SCORE_FILE = SCORES_DIR / "tv26_eval-A_score.txt"
 TV26_EVAL_U_SCORE_FILE = SCORES_DIR / "tv26_eval-U_score.txt"
 
