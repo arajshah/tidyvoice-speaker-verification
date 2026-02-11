@@ -1,0 +1,124 @@
+# conf/tidyvoice_wavlm_base_s1.yaml
+# S1: WavLM-Base SSL frontend + simple stats-pooling speaker head
+# Train → extract embeddings → score trials (same protocol as S2)
+#
+# Assumptions (match your repo):
+# - dataset_args.frontend supports "s3prl" and uses dataset_args.s3prl_args
+# - train.py will set model_args.feat_dim = frontend.output_size() for non-fbank
+# - you added wespeaker/models/ssl_pooling.py with class SSLStatsPooling
+#   and updated wespeaker/models/speaker_model.py to route "SSLStatsPooling" to it
+
+exp_dir: exp/wavlm_base_s1
+
+gpus: [0]
+num_avg: 1
+enable_amp: false
+
+# Keep these OFF initially to avoid LMDB resize/drive issues.
+# noise_data: data/musan/lmdb
+# reverb_data: data/rirs/lmdb
+
+do_lm: true
+seed: 42
+num_epochs: 6
+save_epoch_interval: 1
+log_batch_interval: 100
+
+data_type: shard
+
+dataloader_args:
+  batch_size: 24
+  num_workers: 16
+  pin_memory: false
+  prefetch_factor: 8
+  drop_last: true
+
+dataset_args:
+  sample_num_per_epoch: 0
+  shuffle: true
+  shuffle_args:
+    shuffle_size: 2500
+  filter: true
+  filter_args:
+    min_num_frames: 200
+    max_num_frames: 800
+  resample_rate: 16000
+  speed_perturb: false
+  num_frms: 600
+
+  # Disable waveform augment for now; revisit after S1 runs end-to-end.
+  aug_prob: 0.0
+
+  # Switch from fbank to SSL frontend
+  frontend: s3prl
+  s3prl_args:
+    # S3PRL/huggingface style selector used by many WeSpeaker forks.
+    # If your repo uses a different key, adjust to match its frontend wrapper.
+    upstream: huggingface
+    model_name: microsoft/wavlm-base
+
+    # Common wrapper toggles (safe defaults; ignored if your wrapper doesn't use them)
+    frozen: true          # start with frozen SSL; later you can set false to fine-tune
+    layer: -1             # last layer features
+    normalize: false
+
+  # Keep these present but irrelevant when frontend != fbank
+  fbank_args:
+    num_mel_bins: 80
+    frame_shift: 10
+    frame_length: 25
+    dither: 1.0
+
+  spec_aug: false
+  spec_aug_args:
+    num_t_mask: 1
+    num_f_mask: 1
+    max_t: 10
+    max_f: 8
+    prob: 0.6
+
+# Disable GRL/lang head for S1 baseline (turn on later if you explicitly want it)
+lang_adv:
+  enabled: false
+
+# New SSL speaker head (consumes (B,T,F) SSL features)
+model: SSLStatsPooling
+model_init: null
+model_args:
+  # feat_dim will be injected by train.py when frontend != fbank
+  embed_dim: 256
+  hidden_dim: 512
+  dropout: 0.0
+  use_layernorm: true
+  l2_norm: false
+
+projection_args:
+  project_type: arc_margin
+  scale: 32.0
+  easy_margin: false
+
+margin_scheduler: MarginScheduler
+margin_update:
+  initial_margin: 0.0
+  final_margin: 0.3
+  increase_start_epoch: 0
+  fix_start_epoch: 3
+  update_margin: true
+  increase_type: linear
+  epoch_iter: 4265
+
+loss: CrossEntropyLoss
+loss_args: {}
+
+optimizer: SGD
+optimizer_args:
+  momentum: 0.9
+  nesterov: true
+  weight_decay: 0.0001
+
+scheduler: ExponentialDecrease
+scheduler_args:
+  initial_lr: 5.0e-5
+  final_lr: 1.0e-5
+  warm_up_epoch: 0
+  warm_from_zero: false

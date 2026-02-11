@@ -22,9 +22,14 @@ try:
     from .whisper_encoder import whisper_encoder
 except Exception:
     whisper_encoder = None
+try:
+    from .wavlm_hf import WavLMHFFrontend
+except Exception:
+    WavLMHFFrontend = None
     
 
 frontend_class_dict = {
     'fbank': None,
     's3prl': S3prlFrontend,
-    'whisper_encoder': whisper_encoder}
+    'whisper_encoder': whisper_encoder,
+    'wavlm_hf': WavLMHFFrontend}
