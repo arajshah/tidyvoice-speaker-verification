@@ -58,29 +58,7 @@ import zipfile
 from pathlib import Path
 from datetime import datetime
 from typing import Tuple, Dict, List, Optional
-
-# ============================================================================
-# FILE PATHS CONFIGURATION - Update these paths as needed
-# ============================================================================
-
-# Resolve paths relative to this file: wespeaker/examples/tidyvocie/tools/prepare_submission.py
-ROOT = Path(__file__).absolute().parents[1]   # -> .../wespeaker/tools
-
-# Reference trial lists (you unzipped these earlier)
-EVAL_TRIALS_DIR = ROOT / "data" / "eval_trials" / "TidyVoiceX_Eval_pairs"
-TV26_EVAL_A_REF_FILE = EVAL_TRIALS_DIR / "tv26_eval-A.txt"
-TV26_EVAL_U_REF_FILE = EVAL_TRIALS_DIR / "tv26_eval-U.txt"
-
-# Your computed score files (you will generate these in the scoring step)
-SCORES_DIR = ROOT / "exp" / "samresnet34_voxblink_ft_tidy_langgrl" / "scores_custom"
-TV26_EVAL_A_SCORE_FILE = SCORES_DIR / "tv26_eval-A_score.txt"
-TV26_EVAL_U_SCORE_FILE = SCORES_DIR / "tv26_eval-U_score.txt"
-
-# Output directory (persist to Drive because exp/ is symlinked to Drive in your setup)
-OUTPUT_DIR = ROOT / "exp" / "samresnet34_voxblink_ft_tidy_langgrl" / "submission_out"
-
-# ============================================================================
-# ============================================================================
+import argparse
 
 # Expected row counts (without headers)
 TV26_EVAL_U_EXPECTED_ROWS = 1280000
@@ -471,6 +449,66 @@ def process_submission(
 
 def main():
     """Main function to process submission files."""
+    ROOT = Path(__file__).absolute().parents[1]
+
+    DEFAULT_EXP_NAME = "samresnet34_voxblink_ft_tidy_langgrl"
+    DEFAULT_EXP_DIR = ROOT / "exp" / DEFAULT_EXP_NAME
+    DEFAULT_EVAL_TRIALS_DIR = ROOT / "data" / "eval_trials" / "TidyVoiceX_Eval_pairs"
+    DEFAULT_SCORES_DIR = DEFAULT_EXP_DIR / "scores_custom"
+    DEFAULT_OUTPUT_DIR = DEFAULT_EXP_DIR / "submission_out"
+
+    def parse_args():
+        p = argparse.ArgumentParser(
+            description="Package TidyVoiceX eval score files into the submission zip."
+        )
+
+        # Convenience: exp_dir implies exp_dir/scores_custom and exp_dir/submission_out
+        p.add_argument("--exp_dir", type=Path, default=None,
+                    help="Experiment directory. If set, defaults scores_dir=exp_dir/scores_custom, output_dir=exp_dir/submission_out")
+
+        p.add_argument("--scores_dir", type=Path, default=None,
+                    help="Directory containing tv26_eval-A_score.txt and tv26_eval-U_score.txt")
+        p.add_argument("--output_dir", type=Path, default=None,
+                    help="Directory to write submission_out/* (will create unique timestamped subdir)")
+
+        p.add_argument("--eval_trials_dir", type=Path, default=DEFAULT_EVAL_TRIALS_DIR,
+                    help="Directory containing tv26_eval-A.txt and tv26_eval-U.txt")
+
+        # Optional explicit file overrides
+        p.add_argument("--ref_a", type=Path, default=None)
+        p.add_argument("--ref_u", type=Path, default=None)
+        p.add_argument("--score_a", type=Path, default=None)
+        p.add_argument("--score_u", type=Path, default=None)
+
+        return p.parse_args()
+
+    ARGS = parse_args()
+
+    # Resolve dirs
+    if ARGS.scores_dir is None:
+        if ARGS.exp_dir is not None:
+            SCORES_DIR = ARGS.exp_dir / "scores_custom"
+        else:
+            SCORES_DIR = DEFAULT_SCORES_DIR
+    else:
+        SCORES_DIR = ARGS.scores_dir
+
+    if ARGS.output_dir is None:
+        if ARGS.exp_dir is not None:
+            OUTPUT_DIR = ARGS.exp_dir / "submission_out"
+        else:
+            OUTPUT_DIR = DEFAULT_OUTPUT_DIR
+    else:
+        OUTPUT_DIR = ARGS.output_dir
+
+    EVAL_TRIALS_DIR = ARGS.eval_trials_dir
+
+    # Resolve files
+    TV26_EVAL_A_REF_FILE = ARGS.ref_a or (EVAL_TRIALS_DIR / "tv26_eval-A.txt")
+    TV26_EVAL_U_REF_FILE = ARGS.ref_u or (EVAL_TRIALS_DIR / "tv26_eval-U.txt")
+
+    TV26_EVAL_A_SCORE_FILE = ARGS.score_a or (SCORES_DIR / "tv26_eval-A_score.txt")
+    TV26_EVAL_U_SCORE_FILE = ARGS.score_u or (SCORES_DIR / "tv26_eval-U_score.txt")
     
     # Validate input files exist
     print("Checking input files...")
