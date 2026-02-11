@@ -64,7 +64,7 @@ from typing import Tuple, Dict, List, Optional
 # ============================================================================
 
 # Resolve paths relative to this file: wespeaker/examples/tidyvocie/tools/prepare_submission.py
-ROOT = Path(__file__).resolve().parents[1]  # -> .../wespeaker/examples/tidyvocie
+ROOT = Path(__file__).absolute().parents[1]   # -> .../wespeaker/tools
 
 # Reference trial lists (you unzipped these earlier)
 EVAL_TRIALS_DIR = ROOT / "data" / "eval_trials" / "TidyVoiceX_Eval_pairs"
