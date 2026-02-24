@@ -19,6 +19,12 @@ from typing import Dict, Tuple, List, Optional
 import numpy as np
 import kaldiio
 
+from wespeaker.utils.score_metrics import (
+    compute_pmiss_pfa_rbst,
+    compute_eer as ws_compute_eer,
+    compute_c_norm,
+)
+
 
 def str2bool(x: str) -> bool:
     return str(x).lower() in ("1", "true", "t", "yes", "y")
@@ -280,10 +286,21 @@ def main() -> None:
 
     if labeled:
         y = np.concatenate(labels_chunks, axis=0).astype(np.int32)
-        eer = compute_eer(y, scores) * 100.0
-        mindcf = compute_min_dcf(y, scores, p_target=args.p_target, c_miss=args.c_miss, c_fa=args.c_fa)
-        print(f"EER = {eer:.3f}")
-        print(f"minDCF (p_target:{args.p_target} c_miss:{args.c_miss} c_fa:{args.c_fa}) = {mindcf:.3f}")
+        labels = (y == 1)  # bool, matches compute_metrics.py
+
+        # Match wespeaker/bin/compute_metrics.py exactly
+        fnr, fpr = compute_pmiss_pfa_rbst(scores, labels)
+        eer, _ = ws_compute_eer(fnr, fpr, scores)
+        min_dcf = compute_c_norm(
+            fnr,
+            fpr,
+            p_target=args.p_target,
+            c_miss=args.c_miss,
+            c_fa=args.c_fa,
+        )
+
+        print(f"EER = {100.0 * eer:.3f}")
+        print(f"minDCF (p_target:{args.p_target} c_miss:{args.c_miss} c_fa:{args.c_fa}) = {min_dcf:.3f}")
     else:
         print(f"Scored {scores.shape[0]} trials (unlabeled).")
 
