@@ -148,7 +148,13 @@ def compute_min_dcf(
     pfa = non_accept / N
 
     dcf = c_miss * p_target * pmiss + c_fa * (1.0 - p_target) * pfa
-    return float(np.min(dcf))
+    mindcf = float(np.min(dcf))
+
+    # Normalize to match common "normalized minDCF" reporting (and your baseline logs).
+    c_def = min(c_miss * p_target, c_fa * (1.0 - p_target))
+    if c_def > 0:
+        mindcf /= c_def
+    return float(mindcf)
 
 
 def main() -> None:
