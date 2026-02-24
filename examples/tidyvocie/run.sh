@@ -26,6 +26,7 @@ TIDYVOICE_API_KEY="8af02cc3468096da1a527a8760b932d1b9aa33e04c9175915d05ceeab7fd5
 
 ######## Resnet34 Multi Lingual
 exp_dir=exp/samresnet34_voxblink_ft_tidy
+avg_model=$exp_dir/models/avg_model.pt
 config=conf/tidyvoice_resnet34.yaml
 
 gpus="[0,2]"
@@ -134,31 +135,27 @@ fi
 
 if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
   echo "Do model average ..."
-  #avg_model=$exp_dir/models/avg_model.pt
-  python wespeaker/bin/average_model.py \
-    --dst_model $avg_model \
-    --src_path $exp_dir/models \
-    --num ${num_avg}
+  avg_model=$exp_dir/models/avg_model.pt
 
-  model_path=$avg_model
-  if [[ $config == *repvgg*.yaml ]]; then
-    echo "convert repvgg model ..."
-    python wespeaker/models/convert_repvgg.py \
-      --config $exp_dir/config.yaml \
-      --load $avg_model \
-      --save $exp_dir/models/convert_model.pt
-    model_path=$exp_dir/models/convert_model.pt
+  # Only average if avg_model.pt does not already exist
+  if [ ! -f "$avg_model" ]; then
+    python wespeaker/bin/average_model.py \
+      --dst_model "$avg_model" \
+      --src_path "$exp_dir/models" \
+      --num "${num_avg}"
+  else
+    echo "Found existing avg_model.pt, skipping averaging: $avg_model"
   fi
 
+  model_path="$avg_model"
+
   echo "Extract embeddings for evaluation dataset: $eval_dataset ..."
-  # Extract embeddings only for evaluation dataset (skip tidyvoice_train to save time)
   dset=$eval_dataset
-  echo "Extracting embeddings for: $dset"
   if [ -f "${data}/$dset/wav.scp" ]; then
     local/extract_single_dataset.sh \
-      --exp_dir $exp_dir --model_path $model_path \
-      --nj 1 --gpus $gpus --data_type $data_type \
-      --data ${data} --dataset $dset
+      --exp_dir "$exp_dir" --model_path "$model_path" \
+      --nj 1 --gpus "$gpus" --data_type "$data_type" \
+      --data "$data" --dataset "$dset"
   else
     echo "Warning: ${data}/$dset/wav.scp not found, skipping $dset"
   fi
