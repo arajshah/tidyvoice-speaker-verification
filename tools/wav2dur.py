@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+"""Compute the duration of every wav file listed in an scp file.
+
+Reads lines of "wav_id wav_path", loads each file with torchaudio, and
+writes "wav_id duration_seconds" lines to the output scp. Prints the
+utterance count and total duration when done.
+"""
+
 import sys
 
 import torchaudio

@@ -13,6 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Generate a calibration trial list pairing short and long utterances.
+
+Splits utterances into short (2-6s) and long (over 6s) groups per speaker,
+then writes target and nontarget trials for short-to-short, short-to-long,
+and long-to-long enrolment/test combinations.
+"""
+
 import fire
 import logging
 import random

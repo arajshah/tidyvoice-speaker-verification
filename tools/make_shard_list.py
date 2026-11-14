@@ -13,6 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Shard wav files into tar archives for fast training data loading.
+
+Groups utterances into shards of a fixed size, writes each shard as a tar
+file holding the wav bytes plus a speaker label file per utterance, and
+records the shard paths in a shards list file.
+"""
+
 import argparse
 import io
 import logging

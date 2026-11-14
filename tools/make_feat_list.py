@@ -13,6 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Build a JSON-lines feature list joining features to speakers.
+
+Reads a feat scp (utt id to feature path) and an utt2spk file, then writes
+one JSON object per utterance with its key, speaker, and feature path.
+"""
+
 import argparse
 import logging
 import json

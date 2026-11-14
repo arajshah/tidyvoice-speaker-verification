@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Pack wav files listed in an scp file into an LMDB database.
+
+Each key maps to the raw bytes of its wav file, and the full key list is
+stored under the special __keys__ entry for later iteration.
+"""
+
 import argparse
 import math
 import pickle

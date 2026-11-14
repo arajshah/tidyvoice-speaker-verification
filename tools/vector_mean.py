@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Average utterance-level x-vectors into one speaker-level embedding.
+
+Reads a spk2utt file and an x-vector scp, means the embeddings of each
+speaker's utterances, and writes the result as a Kaldi ark/scp pair.
+"""
+
 import argparse
 import kaldiio
 import os

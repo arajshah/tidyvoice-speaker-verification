@@ -13,6 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Build a JSON-lines raw audio list joining wavs to speakers.
+
+Reads a wav scp (utt id to wav path) and an utt2spk file, optionally
+attaching VAD segments from a vad file, and writes one JSON object per
+utterance with its key, speaker, wav path, and VAD ranges.
+"""
+
 import argparse
 import logging
 import json
