@@ -1,5 +1,7 @@
 #!/bin/bash
-# split the wav scp, calculate duration and merge
+# Split a wav scp file, calculate each utterance duration in parallel,
+# and merge the results into one output scp file.
+# Usage: wav_to_duration.sh <in.scp> <out.scp> [logdir]
 
 nj=4
 
