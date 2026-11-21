@@ -22,6 +22,8 @@
 # out only those lines whose "n-th" field is in id_list. The index of
 # the "n-th" field is 1, by default, but can be changed by using
 # the -f <n> switch
+# Defaults: keep lines whose id appears in the list, filtering on the
+# first field unless -f names another field.
 
 $exclude = 0;
 $field = 1;
