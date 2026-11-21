@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Build an LMDB database of wav files from an scp list.
+
+Reads utterance ids and wav paths, stores the raw audio bytes under
+each id, and retries with a larger map size when the database fills
+up. The list of stored keys is saved under a reserved key at the end.
+"""
+
 import argparse
 import math
 import pickle
