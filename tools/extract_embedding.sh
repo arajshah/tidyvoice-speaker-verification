@@ -15,6 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Extract speaker embeddings with the trained x-vector model.
+# Splits the data list across jobs, runs extraction on the configured
+# GPUs in parallel, then merges the per-job outputs into one scp file.
+
 exp_dir='exp/XVEC'
 model_path='avg_model.pt'
 data_type='shard'  # shard/raw/feat
