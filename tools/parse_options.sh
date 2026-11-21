@@ -23,6 +23,8 @@
 # and shell variable "option_name" gets set to value "arg."
 # The exception is --help, which takes no arguments, but prints the
 # $help_message variable (if defined).
+# Scripts that source this file must define their option variables
+# (and optionally help_message) before sourcing it.
 
 ###
 ### The --conf file options have lower priority to command line
