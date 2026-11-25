@@ -17,7 +17,8 @@
 
 Reads a wav scp (utt id to wav path) and an utt2spk file, optionally
 attaching VAD segments from a vad file, and writes one JSON object per
-utterance with its key, speaker, wav path, and VAD ranges.
+utterance with its key, speaker, wav path, and VAD ranges. VAD segments
+are attached only when a vad file is supplied.
 """
 
 import argparse
