@@ -17,7 +17,8 @@
 
 Splits utterances into short (2-6s) and long (over 6s) groups per speaker,
 then writes target and nontarget trials for short-to-short, short-to-long,
-and long-to-long enrolment/test combinations.
+and long-to-long enrolment/test combinations. The number of trials per
+condition defaults to 10,000.
 """
 
 import fire
