@@ -16,6 +16,7 @@
 
 Reads a spk2utt file and an x-vector scp, means the embeddings of each
 speaker's utterances, and writes the result as a Kaldi ark/scp pair.
+Embeddings are read sequentially from the x-vector scp.
 """
 
 import argparse
