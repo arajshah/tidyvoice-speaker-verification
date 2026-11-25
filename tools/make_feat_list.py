@@ -16,7 +16,8 @@
 """Build a JSON-lines feature list joining features to speakers.
 
 Reads a feat scp (utt id to feature path) and an utt2spk file, then writes
-one JSON object per utterance with its key, speaker, and feature path.
+one JSON object per utterance with its key, speaker, and feature path. The
+output is one JSON object per line, so it can be read back incrementally.
 """
 
 import argparse
