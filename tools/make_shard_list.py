@@ -17,7 +17,8 @@
 
 Groups utterances into shards of a fixed size, writes each shard as a tar
 file holding the wav bytes plus a speaker label file per utterance, and
-records the shard paths in a shards list file.
+records the shard paths in a shards list file. Tar archives keep training
+reads sequential instead of opening thousands of small wav files.
 """
 
 import argparse
