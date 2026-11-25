@@ -15,7 +15,8 @@
 """Pack wav files listed in an scp file into an LMDB database.
 
 Each key maps to the raw bytes of its wav file, and the full key list is
-stored under the special __keys__ entry for later iteration.
+stored under the special __keys__ entry for later iteration. The database
+is opened with a fixed 20 GB map size.
 """
 
 import argparse
